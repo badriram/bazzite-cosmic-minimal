@@ -60,8 +60,17 @@ popd
 KERNEL_VERSION=$(rpm -q kernel --qf '%{VERSION}-%{RELEASE}.%{ARCH}')
 echo "Installed kernel: $KERNEL_VERSION"
 
-# Regenerate initramfs for the new kernel
+# Regenerate initramfs for the new kernel (using Bazzite's dracut options)
 echo "Regenerating initramfs..."
-dracut --force --kver "$KERNEL_VERSION"
+/usr/bin/dracut \
+    --no-hostonly \
+    --kver "$KERNEL_VERSION" \
+    --reproducible \
+    --zstd \
+    -v \
+    --add ostree \
+    -f "/usr/lib/modules/$KERNEL_VERSION/initramfs.img"
+
+chmod 0600 "/usr/lib/modules/$KERNEL_VERSION/initramfs.img"
 
 echo "Bazzite kernel installed successfully"
