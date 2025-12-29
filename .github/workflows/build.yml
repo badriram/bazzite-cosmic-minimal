@@ -66,8 +66,8 @@ jobs:
             FEDORA_VERSION=${{ env.FEDORA_VERSION }}
           extra-args: |
             --layers
-            --cache-from=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-            --cache-to=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+            --cache-from=type=registry,ref=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}-cache
+            --cache-to=type=registry,ref=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}-cache
 
       - name: Push to GHCR
         if: github.event_name != 'pull_request'
@@ -77,7 +77,3 @@ jobs:
           tags: ${{ steps.build.outputs.tags }}
           registry: ${{ env.IMAGE_REGISTRY }}
 
-      - name: Push build cache
-        if: github.event_name != 'pull_request'
-        run: |
-          buildah push ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache || true
