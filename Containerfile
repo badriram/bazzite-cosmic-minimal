@@ -13,6 +13,7 @@ FROM ${KERNEL_REF} AS kernel
 # Build context
 FROM scratch AS ctx
 COPY build_files /
+COPY system_files /system_files
 
 # Main image
 FROM ${BASE_IMAGE}

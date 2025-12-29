@@ -114,6 +114,8 @@ dnf5 -y install \
     btop \
     fastfetch \
     fish \
+    zsh \
+    eza \
     gnome-disk-utility \
     vulkan-tools \
     p7zip \
@@ -131,6 +133,15 @@ chmod +x /usr/bin/winetricks
 # Flathub
 mkdir -p /etc/flatpak/remotes.d
 curl --retry 3 -Lo /etc/flatpak/remotes.d/flathub.flatpakrepo https://dl.flathub.org/repo/flathub.flatpakrepo
+
+# Copy system files (skeleton configs, etc.)
+if [[ -d /ctx/system_files ]]; then
+    cp -r /ctx/system_files/* /
+fi
+
+# Set zsh as default shell for new users
+sed -i 's|^SHELL=.*|SHELL=/bin/zsh|' /etc/default/useradd 2>/dev/null || \
+    echo 'SHELL=/bin/zsh' >> /etc/default/useradd
 
 # ============================================================================
 # CLEANUP
