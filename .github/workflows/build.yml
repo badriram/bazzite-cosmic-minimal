@@ -65,8 +65,7 @@ jobs:
           build-args: |
             FEDORA_VERSION=${{ env.FEDORA_VERSION }}
           extra-args: |
-            --layers
-            --cache-from=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            --layers=false
 
       - name: Push to GHCR
         if: github.event_name != 'pull_request'
