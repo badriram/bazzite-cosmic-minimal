@@ -23,6 +23,19 @@ jobs:
       id-token: write
 
     steps:
+      - name: Maximize build space
+        run: |
+          echo "Before cleanup:"
+          df -h /
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune -a -f
+          sudo docker system prune -a -f
+          echo "After cleanup:"
+          df -h /
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -44,6 +57,8 @@ jobs:
             ${{ steps.generate-tags.outputs.date }}
           build-args: |
             FEDORA_VERSION=${{ env.FEDORA_VERSION }}
+          extra-args: |
+            --layers=false
 
       - name: Login to GHCR
         if: github.event_name != 'pull_request'
