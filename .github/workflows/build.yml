@@ -1,0 +1,62 @@
+name: Build Bazzite COSMIC
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: bazzite-cosmic
+  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+  FEDORA_VERSION: 43
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate image tags
+        id: generate-tags
+        run: |
+          echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
+          echo "sha_short=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      - name: Build image
+        id: build
+        uses: redhat-actions/buildah-build@v2
+        with:
+          containerfiles: ./Containerfile
+          image: ${{ env.IMAGE_NAME }}
+          tags: |
+            latest
+            ${{ env.FEDORA_VERSION }}
+            ${{ steps.generate-tags.outputs.date }}
+          build-args: |
+            FEDORA_VERSION=${{ env.FEDORA_VERSION }}
+
+      - name: Login to GHCR
+        if: github.event_name != 'pull_request'
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push to GHCR
+        if: github.event_name != 'pull_request'
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build.outputs.image }}
+          tags: ${{ steps.build.outputs.tags }}
+          registry: ${{ env.IMAGE_REGISTRY }}
