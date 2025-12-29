@@ -66,8 +66,7 @@ jobs:
             FEDORA_VERSION=${{ env.FEDORA_VERSION }}
           extra-args: |
             --layers
-            --cache-from=type=registry,ref=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}-cache
-            --cache-to=type=registry,ref=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}-cache
+            --cache-from=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
       - name: Push to GHCR
         if: github.event_name != 'pull_request'
