@@ -56,4 +56,12 @@ mv -f 05-rpmostree.install.bak 05-rpmostree.install
 mv -f 50-dracut.install.bak 50-dracut.install
 popd
 
+# Get installed kernel version
+KERNEL_VERSION=$(rpm -q kernel --qf '%{VERSION}-%{RELEASE}.%{ARCH}')
+echo "Installed kernel: $KERNEL_VERSION"
+
+# Regenerate initramfs for the new kernel
+echo "Regenerating initramfs..."
+dracut --force --kver "$KERNEL_VERSION"
+
 echo "Bazzite kernel installed successfully"
